@@ -6,35 +6,39 @@ namespace TicTacToe5x5
     internal class Program
     {
         const int BOARD_SIZE = 5;
-        char[,] playBoard = new char[BOARD_SIZE, BOARD_SIZE];
+        static char[,] playBoard = new char[BOARD_SIZE, BOARD_SIZE];
         const char CURRENT_PLAYER_1 = 'X';
         const char CURRENT_PLAYER_2 = 'O';
+        const int MAX_MOVE = 25;
         const int ZERO = 0;
         const int ONE = 1;
         const int TWO = 2;
 
-        private static void InitializeBoard(char[,] playBoard)
+        private static void InitializeBoard()
         {
             for (int i = ZERO; i < BOARD_SIZE; i++)
             {
                 for (int j = ZERO; j < BOARD_SIZE; j++)
                 {
-                    playBoard[i, j] = ' ' ;
+                    playBoard[i, j] = ' ';
                 }
             }
         }
 
-        private static void ShowBoard(char[,] playBoard)
+        private static void ShowBoard()
         {
             Console.Clear();
             Console.WriteLine("   1  2  3  4  5");
+
             for (int i = ZERO; i < BOARD_SIZE; i++)
             {
                 Console.Write((char)('A' + i));
+
                 for (int j = ZERO; j < BOARD_SIZE; j++)
                 {
                     Console.Write($"  {playBoard[i, j]}");
                 }
+
                 Console.WriteLine();
             }
         }
@@ -50,30 +54,45 @@ namespace TicTacToe5x5
             bool gameRun = true;
             int count = 0;
           
-            InitializeBoard(playBoard);
+            InitializeBoard();
             
             while (gameRun)
             {
-                ShowBoard(playBoard);
-                if (count == 0 || count % 2 == 0)
+                ShowBoard();
+                if (count == ZERO || count % TWO == ZERO)
                 {
                     InputPlayer1(count,gameRun);
+                    if (CheckForWin(CURRENT_PLAYER_1))
+                    {
+                        ShowBoard();
+                        Console.WriteLine($"Играч {CURRENT_PLAYER_1} спечели!");
+                        gameRun = false;
+                    }
                 }
-                else
+                else if (count % TWO == ONE)
                 {
                     InputPlayer2(count, gameRun);
+
+                    if (CheckForWin(CURRENT_PLAYER_2))
+                    {
+                        ShowBoard();
+                        Console.WriteLine($"Играч {CURRENT_PLAYER_2} спечели!");
+                        gameRun = false;
+                    }
                 }
-                if (IsBoardFull())
+                if (count == MAX_MOVE)
                 {
-                    ShowBoard(playBoard);
+                    ShowBoard();
                     Console.WriteLine("Равенство!");
                     gameRun = false;
                 }
-                count++;
+                count ++;
             }
         }
         public void InputPlayer1(int count ,bool gameRun)
         {
+            while (true)
+            {
                 Console.WriteLine($"Играч {CURRENT_PLAYER_1}, въведете ред и колона (например A 1):");
                 try
                 {
@@ -84,7 +103,7 @@ namespace TicTacToe5x5
                         throw new FormatException("Невалиден вход. Моля, въведете ред и колона като буква и число, разделени с интервал.");
                     }
 
-                    // Преобразуване на входа в индекс
+                    // Преобразуване на входа в индекс за дъската
                     int row = char.ToUpper(input[0][0]) - 'A';
 
                     if (!IsMoveValid(row, col - ONE))
@@ -93,23 +112,23 @@ namespace TicTacToe5x5
                     }
 
                     playBoard[row, col - ONE] = CURRENT_PLAYER_1;
-
-                if (CheckForWin(CURRENT_PLAYER_1))
-                    {
-                        ShowBoard(playBoard);
-                        Console.WriteLine($"Играч {CURRENT_PLAYER_1} спечели!");
-                        gameRun = false;
-                    }
                 }
-
+                
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Грешка: {ex.Message}");
+                    continue;
                 }
+               
+                break;
+            }
+
         }
+
         public void InputPlayer2(int count,bool gameRun)
         {
-
+            while (true)
+            {
                 Console.WriteLine($"Играч {CURRENT_PLAYER_2}, въведете ред и колона (например A 1):");
                 try
                 {
@@ -128,24 +147,20 @@ namespace TicTacToe5x5
                     }
 
                     playBoard[row, col - ONE] = CURRENT_PLAYER_2;
-
-  
-                if (CheckForWin(CURRENT_PLAYER_2))
-                    {
-                        ShowBoard(playBoard);
-                        Console.WriteLine($"Играч {CURRENT_PLAYER_2} спечели!");
-                        gameRun = false;
-                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Грешка: {ex.Message}");
+                    continue;
                 }
+               
+                break;
+            }
         }
 
         private bool CheckForWin(char player)
         {
-            for (int i = ZERO; i <= BOARD_SIZE; i++)
+            for (int i = ZERO; i < BOARD_SIZE; i++)
             {
                 if (playBoard[i, 0] == player && playBoard[i, 1] == player && playBoard[i, 2] == player && playBoard[i, 3] == player && playBoard[i, 4] == player)
                 {
@@ -168,22 +183,6 @@ namespace TicTacToe5x5
 
             return false;
         }
-
-        private bool IsBoardFull()
-        {
-            for (int i = ZERO; i < BOARD_SIZE; i++)
-            {
-                for (int j = ZERO; j < BOARD_SIZE; j++)
-                {
-                    if (playBoard[i, j] == ' ')
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
 
         static void Main(string[] args)
         {
